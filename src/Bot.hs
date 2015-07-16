@@ -1,5 +1,6 @@
 module Bot (main, run) where
 
+import Bot.Args
 import Bot.Utils
 import Control.Concurrent.VarThread
 import Sources.PrizePool
@@ -23,12 +24,9 @@ import Data.Yaml
 import Options.Applicative
 import Prelude
 import Reddit
-import Reddit.Types.Subreddit (SubredditName(..))
 import Reddit.Types.Wiki
 import Reddit.Types.User (Username(..))
-import System.Environment
 import System.Exit
-import WebAPI.Dota
 import qualified Data.Map as Map
 import qualified Data.Text as Text
 import qualified Googl
@@ -43,26 +41,10 @@ streamViewers (MStream (s, _)) = MLG.streamViewers s
 
 type URLMap = Map Text Text
 
-type Password = Text
-
-data Options =
-  Options Username Password SubredditName GosuGamersKey WebAPIKey Googl.APIKey
-  deriving (Show)
-
-instance FromJSON Options where
-  parseJSON (Object o) =
-    Options <$> o .: "username"
-            <*> o .: "password"
-            <*> o .: "subreddit"
-            <*> (GGKey <$> o .: "gg_key")
-            <*> (WebAPIKey <$> o .: "valve_key")
-            <*> (Googl.APIKey <$> o .: "googl_key")
-  parseJSON _ = mempty
-
 main :: IO ()
-main = getArgs >>= \case
-  [fp] -> run fp
-  _ -> putStrLn "invalid args"
+main = do
+  CmdOptions res <- getOpts
+  run res
 
 run :: FilePath -> IO ()
 run fp =

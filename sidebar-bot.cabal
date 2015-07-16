@@ -7,6 +7,7 @@ license: BSD3
 library
   exposed-modules:
     Bot
+    Bot.Args
     Bot.Utils
     Control.Concurrent.VarThread
     Sources.PrizePool
