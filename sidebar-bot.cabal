@@ -1,0 +1,51 @@
+name: sidebar-bot
+version: 0.1.0.0
+build-type: Simple
+cabal-version: >= 1.10
+license: BSD3
+
+library
+  exposed-modules:
+    Bot
+    Bot.Utils
+    Control.Concurrent.VarThread
+    Sources.PrizePool
+    Sources.Gosu
+    Sources.MLG
+    Sources.Twitch
+  hs-source-dirs: src/
+  default-language: Haskell2010
+  default-extensions:
+    LambdaCase
+    OverloadedStrings
+    TemplateHaskell
+  ghc-options: -Wall
+  build-depends:
+    base == 4.*,
+    aeson,
+    api-builder,
+    async,
+    bifunctors,
+    bytestring,
+    containers,
+    dota2,
+    either,
+    googl,
+    lens,
+    mtl,
+    optparse-applicative,
+    reddit,
+    stm,
+    text,
+    time,
+    transformers,
+    yaml
+
+executable sidebar-bot
+  main-is: Main.hs
+  hs-source-dirs: ./, src/
+  default-language: Haskell2010
+  ghc-options: -Wall
+  build-depends:
+    base == 4.*,
+    sidebar-bot
