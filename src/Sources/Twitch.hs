@@ -26,7 +26,7 @@ instance FromJSON Stream where
   parseJSON (Object o) = do
     channel <- o .: "channel"
     Stream <$> channel .: "display_name"
-           <*> channel .: "status"
+           <*> (channel .: "status" <|> pure "(No title)")
            <*> o .: "viewers"
            <*> channel .: "url"
   parseJSON _ = mempty
