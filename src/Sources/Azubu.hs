@@ -53,6 +53,6 @@ azubuTrackerThread :: IO (VarThread [Stream])
 azubuTrackerThread = newEmptyVarThread $ \update ->
   forever $ do
     getStreams >>= \case
-      Left _ -> return ()
+      Left err -> putStrLn $ "Azubu error:" <> show err
       Right (StreamList ss) -> atomically $ update ss
     threadDelay $ 30 * 1000 * 1000

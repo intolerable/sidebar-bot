@@ -61,7 +61,7 @@ hitboxTrackerThread :: IO (VarThread [Stream])
 hitboxTrackerThread = newEmptyVarThread $ \update ->
   forever $ do
     getStreams >>= \case
-      Left _ -> return ()
+      Left err -> putStrLn $ "Hitbox error:" <> show err
       Right (StreamList ss) -> atomically $ update $ filter isDota ss
     threadDelay $ 30 * 1000 * 1000
 

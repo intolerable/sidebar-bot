@@ -6,6 +6,7 @@ import Control.Concurrent
 import Control.Monad
 import Control.Monad.STM
 import Data.Aeson
+import Data.Monoid
 import Network.API.Builder
 
 newtype PlayerCount = PlayerCount Integer
@@ -30,7 +31,7 @@ playersTrackerThread :: IO (VarThread Bool)
 playersTrackerThread = newEmptyVarThread $ \update ->
   forever $ do
     getPlayerCount >>= \case
-      Left _ -> return ()
+      Left err -> putStrLn $ "Playercount error:" <> show err
       Right (PlayerCount x) ->
         atomically $ update $ x /= 0
     threadDelay $ 60 * 1000 * 1000

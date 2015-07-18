@@ -106,6 +106,6 @@ mlgTrackerThread :: IO (VarThread [(Stream, Channel)])
 mlgTrackerThread = newEmptyVarThread $ \update ->
   forever $ do
     getStreams >>= \case
-      Left _ -> return ()
+      Left err -> putStrLn $ "MLG error:" <> show err
       Right mlgs -> atomically $ update mlgs
     threadDelay $ 60 * 1000 * 1000

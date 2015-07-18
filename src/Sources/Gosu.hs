@@ -27,7 +27,7 @@ gosuTrackerThread :: GosuGamersKey -> IO (VarThread [Match])
 gosuTrackerThread ggkey = newEmptyVarThread $ \update ->
   forever $ do
     getMatches ggkey >>= \case
-      Left _ -> return ()
+      Left err -> putStrLn $ "Gosu error:" <> show err
       Right (Matches ms) -> atomically $ update ms
     threadDelay $ 15 * 60 * 1000 * 1000
 
