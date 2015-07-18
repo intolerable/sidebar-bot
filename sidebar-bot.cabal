@@ -10,6 +10,8 @@ library
     Bot.Args
     Bot.Utils
     Control.Concurrent.VarThread
+    Sources.Azubu
+    Sources.Hitbox
     Sources.PrizePool
     Sources.Gosu
     Sources.MLG

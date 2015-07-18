@@ -8,6 +8,8 @@ import Sources.Gosu
 import qualified Sources.MLG as MLG
 import qualified Sources.Gosu as Gosu
 import qualified Sources.Twitch as Twitch
+import qualified Sources.Azubu as Azubu
+import qualified Sources.Hitbox as Hitbox
 
 import Control.Applicative
 import Control.Concurrent
@@ -33,21 +35,23 @@ import qualified Googl
 
 data Stream = TStream Twitch.Stream
             | MStream (MLG.Stream, MLG.Channel)
+            | AStream Azubu.Stream
+            | HStream Hitbox.Stream
   deriving (Show, Read, Eq)
 
 streamViewers :: Stream -> Integer
 streamViewers (TStream s) = Twitch.viewers s
 streamViewers (MStream (s, _)) = MLG.streamViewers s
+streamViewers (AStream s) = Azubu.viewers s
+streamViewers (HStream s) = Hitbox.viewers s
 
 type URLMap = Map Text Text
 
 main :: IO ()
-main = do
-  CmdOptions res <- getOpts
-  run res
+main = getOpts >>= run
 
-run :: FilePath -> IO ()
-run fp =
+run :: CmdOptions -> IO ()
+run (CmdOptions fp) =
   decodeFileEither fp >>= \case
     Left err -> do
       print err
@@ -59,6 +63,8 @@ redesign o@(Options (Username u) p r gg wk gk) = do
   pp <- prizeTrackerThread wk
   wp <- newEmptyVarThread (wikiPageTracker o)
   ts <- Twitch.twitchTrackerThread
+  as <- Azubu.azubuTrackerThread
+  hs <- Hitbox.hitboxTrackerThread
   mlgs <- MLG.mlgTrackerThread
   urlmap <- newTVarIO Map.empty
   mp <- Gosu.gosuTrackerThread gg
@@ -66,7 +72,7 @@ redesign o@(Options (Username u) p r gg wk gk) = do
     (prize, wikiText, streams, ms) <- atomically $
       (,,,) <$> readVarThread pp
             <*> readVarThread wp
-            <*> combine ts mlgs
+            <*> combine ts mlgs as hs
             <*> readVarThread mp
     void $ runRedditWithRateLimiting u p $ do
       currentTime <- liftIO getCurrentTime
@@ -77,9 +83,15 @@ redesign o@(Options (Username u) p r gg wk gk) = do
       editWikiPage r "config/sidebar" newText'' "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
-combine :: VarThread [Twitch.Stream] -> VarThread [(MLG.Stream, MLG.Channel)] -> STM [Stream]
-combine va vb =
-  mappend <$> (fmap TStream <$> readVarThread va) <*> (fmap MStream <$> readVarThread vb)
+combine :: VarThread [Twitch.Stream] -> VarThread [(MLG.Stream, MLG.Channel)] -> VarThread [Azubu.Stream] -> VarThread [Hitbox.Stream] -> STM [Stream]
+combine va vb vc vd =
+  mconcat <$> sequence
+    [ TStream <$$> readVarThread va
+    , MStream <$$> readVarThread vb
+    , AStream <$$> readVarThread vc
+    , HStream <$$> readVarThread vd ]
+  where
+    f <$$> a = fmap f <$> a
 
 retrieveShortened :: Googl.APIKey -> TVar URLMap -> Text -> IO Text
 retrieveShortened googlKey urlMap longURL =
@@ -113,6 +125,16 @@ formatStream n (MStream (s, c)) =
           , "(", MLG.channelURL c, "#profile-", tshow n, ")\n"
           , ">##\n"
           , ">###", tshow $ MLG.streamViewers s, " @ ", MLG.channelName c ]
+formatStream n (AStream stream) =
+  mconcat [ ">>>#[", Text.strip $ Azubu.title stream, "]"
+          , "(", Azubu.url stream, "#profile-", tshow n, ")\n"
+          , ">##\n"
+          , ">###", tshow $ Azubu.viewers stream, " @ ", Azubu.streamer stream ]
+formatStream n (HStream stream) =
+  mconcat [ ">>>#[", Text.strip $ Hitbox.title stream, "]"
+          , "(", Hitbox.url stream, "#profile-", tshow n, ")\n"
+          , ">##\n"
+          , ">###", tshow $ Hitbox.viewers stream, " @ ", Hitbox.streamer stream ]
 
 formatMatches :: UTCTime -> [(Match, Text)] -> Text
 formatMatches u = Text.intercalate "\n\n[](#separator)\n\n" . map (uncurry $ formatMatch u)
