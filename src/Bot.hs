@@ -24,6 +24,7 @@ import Data.Map (Map)
 import Data.Ord
 import Data.Text (Text)
 import Data.Time.Clock
+import Data.Time.Format
 import Data.Yaml
 import Prelude
 import Reddit
@@ -85,7 +86,8 @@ redesign o@(Options (Username u) p r gg wk gk) = do
         , Text.replace "%%STREAMS%%" $ formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams
         , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds
         , Text.replace "%%SERVERS%%" $ if alive then "OK" else "Offline"
-        , Text.replace "%%ANNOUNCE%%" $ if alive then "" else "1. [Dota 2 Servers are Offline](http://steamstat.us#notice)" ]
+        , Text.replace "%%ANNOUNCE%%" $ if alive then "" else "1. [Dota 2 Servers are Offline](http://steamstat.us#notice)"
+        , Text.replace "%%COUNTDOWN%%" $ countdown currentTime ]
       editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
@@ -166,3 +168,18 @@ formatMatch time match shortURL = execWriter $ do
   tell "[](/"
   tell $ Text.toLower $ Gosu.countryCode $ Gosu.secondOpponent match
   tell ")\n"
+
+countdown :: UTCTime -> Text
+countdown currentTime = mconcat
+  [ "["
+  , tshow days, "d "
+  , tshow hours, "h "
+  , tshow minutes, "m"
+  , "](http://dota2.com/international/replays#countdown)" ]
+  where
+    ti5start = parseTimeOrError False defaultTimeLocale (iso8601DateFormat (Just "%H:%M:%S")) "2015-07-26T16:00:00"
+    (minutes', _seconds) = timeDiff `divMod` 60
+    (hours', minutes) = minutes' `divMod` 60
+    (days, hours) = hours' `divMod` 24
+    timeDiff :: Integer
+    timeDiff = floor $ ti5start `diffUTCTime` currentTime
