@@ -12,6 +12,7 @@ library
     Control.Concurrent.VarThread
     Sources.Azubu
     Sources.Hitbox
+    Sources.PlayerCount
     Sources.PrizePool
     Sources.Gosu
     Sources.MLG

@@ -5,6 +5,7 @@ import Bot.Utils
 import Control.Concurrent.VarThread
 import Sources.Gosu
 import Sources.PrizePool
+import Sources.PlayerCount
 import qualified Sources.Azubu as Azubu
 import qualified Sources.Gosu as Gosu
 import qualified Sources.Hitbox as Hitbox
@@ -17,13 +18,13 @@ import Control.Concurrent.STM
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Writer
+import Data.Monoid
 import Data.List
 import Data.Map (Map)
 import Data.Ord
 import Data.Text (Text)
 import Data.Time.Clock
 import Data.Yaml
-import Options.Applicative
 import Prelude
 import Reddit
 import Reddit.Types.User (Username(..))
@@ -61,6 +62,7 @@ run (CmdOptions fp) =
 redesign :: Options -> IO ()
 redesign o@(Options (Username u) p r gg wk gk) = do
   pp <- prizeTrackerThread wk
+  pc <- playersTrackerThread
   wp <- newEmptyVarThread (wikiPageTracker o)
   ts <- Twitch.twitchTrackerThread
   as <- Azubu.azubuTrackerThread
@@ -69,18 +71,22 @@ redesign o@(Options (Username u) p r gg wk gk) = do
   urlmap <- newTVarIO Map.empty
   mp <- Gosu.gosuTrackerThread gg
   forever $ do
-    (prize, wikiText, streams, ms) <- atomically $
-      (,,,) <$> readVarThread pp
-            <*> readVarThread wp
-            <*> combine ts mlgs as hs
-            <*> readVarThread mp
+    (prize, alive, wikiText, streams, ms) <- atomically $
+      (,,,,) <$> readVarThread pp
+             <*> readVarThread pc
+             <*> readVarThread wp
+             <*> combine ts mlgs as hs
+             <*> readVarThread mp
     void $ runRedditWithRateLimiting u p $ do
       currentTime <- liftIO getCurrentTime
       shorteneds <- mapM (liftIO . retrieveShortened gk urlmap . Gosu.matchURL) ms
-      let newText = Text.replace "%%PRIZE%%" ("$" <> thousandsFormat prize) wikiText
-      let newText' = Text.replace "%%STREAMS%%" (formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams) newText
-      let newText'' = Text.replace "%%MATCHES%%" (formatMatches currentTime (ms `zip` shorteneds)) newText'
-      editWikiPage r "config/sidebar" newText'' "sidebar update"
+      app <- return $ mconcat $ map Endo
+        [ Text.replace "%%PRIZE%%" $ "$" <> thousandsFormat prize
+        , Text.replace "%%STREAMS%%" $ formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams
+        , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds
+        , Text.replace "%%SERVERS%%" $ if alive then "OK" else "Offline"
+        , Text.replace "%%ANNOUNCE%%" $ if alive then "" else "1. [Dota 2 Servers are Offline](http://steamstat.us#notice)" ]
+      editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
 combine :: VarThread [Twitch.Stream] -> VarThread [(MLG.Stream, MLG.Channel)] -> VarThread [Azubu.Stream] -> VarThread [Hitbox.Stream] -> STM [Stream]
