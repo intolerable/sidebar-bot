@@ -3,13 +3,13 @@ module Bot (main, run) where
 import Bot.Args
 import Bot.Utils
 import Control.Concurrent.VarThread
-import Sources.PrizePool
 import Sources.Gosu
-import qualified Sources.MLG as MLG
-import qualified Sources.Gosu as Gosu
-import qualified Sources.Twitch as Twitch
+import Sources.PrizePool
 import qualified Sources.Azubu as Azubu
+import qualified Sources.Gosu as Gosu
 import qualified Sources.Hitbox as Hitbox
+import qualified Sources.MLG as MLG
+import qualified Sources.Twitch as Twitch
 
 import Control.Applicative
 import Control.Concurrent
@@ -26,8 +26,8 @@ import Data.Yaml
 import Options.Applicative
 import Prelude
 import Reddit
-import Reddit.Types.Wiki
 import Reddit.Types.User (Username(..))
+import Reddit.Types.Wiki
 import System.Exit
 import qualified Data.Map as Map
 import qualified Data.Text as Text

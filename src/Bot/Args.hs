@@ -2,13 +2,13 @@ module Bot.Args where
 
 import Sources.Gosu
 
+import Data.Text (Text)
 import Data.Yaml hiding (Parser)
+import Options.Applicative
 import Reddit.Types.Subreddit
 import Reddit.Types.User
 import WebAPI.Dota
-import Options.Applicative
 import qualified Googl
-import Data.Text (Text)
 
 type Password = Text
 
