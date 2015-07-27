@@ -70,7 +70,9 @@ teamFlags = Map.fromList
   , "Cloud9 G2A" =: "c9"
   , "Team Secret" =: "secret"
   , "Fnatic" =: "fnatic"
-  , "compLexity Gaming" =: "col" ]
+  , "compLexity Gaming" =: "col"
+  , "Invictus Gaming" =: "ig"
+  , "Natus Vincere" =: "navi" ]
   where (=:) = (,)
 
 playerOfficialNames :: Map AccountID Lazy.Text
