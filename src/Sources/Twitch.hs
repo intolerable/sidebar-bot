@@ -60,4 +60,4 @@ twitchTrackerThread = newEmptyVarThread $ \update ->
     getStreams >>= \case
       Left err -> putStrLn $ "Twitch error:" <> show err
       Right (StreamList ss) -> atomically $ update ss
-    threadDelay $ 30 * 1000 * 1000
+    threadDelay $ 60 * 1000 * 1000

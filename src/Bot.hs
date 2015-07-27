@@ -24,11 +24,9 @@ import Data.Map (Map)
 import Data.Ord
 import Data.Text (Text)
 import Data.Time.Clock
-import Data.Time.Format
 import Data.Yaml
 import Prelude
-import Reddit
-import Reddit.Types.User (Username(..))
+import Reddit hiding (Options)
 import Reddit.Types.Wiki
 import System.Exit
 import qualified Data.Map as Map
@@ -78,7 +76,7 @@ redesign o@(Options (Username u) p r gg wk gk) = do
              <*> readVarThread wp
              <*> combine ts mlgs as hs
              <*> readVarThread mp
-    void $ runRedditWithRateLimiting u p $ do
+    void $ runReddit u p $ do
       currentTime <- liftIO getCurrentTime
       shorteneds <- mapM (liftIO . retrieveShortened gk urlmap . Gosu.matchURL) ms
       app <- return $ mconcat $ map Endo
@@ -86,8 +84,7 @@ redesign o@(Options (Username u) p r gg wk gk) = do
         , Text.replace "%%STREAMS%%" $ formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams
         , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds
         , Text.replace "%%SERVERS%%" $ if alive then "OK" else "Offline"
-        , Text.replace "%%ANNOUNCE%%" $ if alive then "" else "1. [Dota 2 Servers are Offline](http://steamstat.us#notice)"
-        , Text.replace "%%COUNTDOWN%%" $ countdown currentTime ]
+        , Text.replace "%%ANNOUNCE%%" $ if alive then "" else "1. [Dota 2 Servers are Offline](http://steamstat.us#notice)"]
       editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
@@ -114,7 +111,7 @@ retrieveShortened googlKey urlMap longURL =
 
 wikiPageTracker :: Options -> (Text -> STM ()) -> IO ()
 wikiPageTracker (Options (Username u) p r _ _ _) send = forever $ do
-  runRedditWithRateLimiting u p (getWikiPage r "sidebar") >>= \case
+  runReddit u p (getWikiPage r "sidebar") >>= \case
     Left _ -> return ()
     Right wp -> atomically $ send $ contentMarkdown wp
   threadDelay $ 5 * 60 * 1000 * 1000
@@ -168,18 +165,3 @@ formatMatch time match shortURL = execWriter $ do
   tell "[](/"
   tell $ Text.toLower $ Gosu.countryCode $ Gosu.secondOpponent match
   tell ")\n"
-
-countdown :: UTCTime -> Text
-countdown currentTime = mconcat
-  [ "["
-  , tshow days, "d "
-  , tshow hours, "h "
-  , tshow minutes, "m"
-  , "](http://dota2.com/international/replays#countdown)" ]
-  where
-    ti5start = parseTimeOrError False defaultTimeLocale (iso8601DateFormat (Just "%H:%M:%S")) "2015-07-26T16:00:00"
-    (minutes', _seconds) = timeDiff `divMod` 60
-    (hours', minutes) = minutes' `divMod` 60
-    (days, hours) = hours' `divMod` 24
-    timeDiff :: Integer
-    timeDiff = floor $ ti5start `diffUTCTime` currentTime

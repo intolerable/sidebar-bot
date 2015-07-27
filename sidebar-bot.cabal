@@ -11,18 +11,25 @@ library
     Bot.Utils
     Control.Concurrent.VarThread
     Sources.Azubu
+    Sources.Gosu
     Sources.Hitbox
+    Sources.MLG
+    Sources.MatchBot
+    Sources.MatchBot.Templates.Finished
+    Sources.MatchBot.Templates.Flairs
+    Sources.MatchBot.Templates.Ongoing
     Sources.PlayerCount
     Sources.PrizePool
-    Sources.Gosu
-    Sources.MLG
     Sources.Twitch
   hs-source-dirs: src/
   default-language: Haskell2010
   default-extensions:
+    FlexibleContexts
     LambdaCase
     OverloadedStrings
+    RankNTypes
     TemplateHaskell
+    ViewPatterns
   ghc-options: -Wall
   build-depends:
     base == 4.*,
@@ -41,6 +48,7 @@ library
     reddit,
     stm,
     text,
+    text-format,
     time,
     transformers,
     yaml
