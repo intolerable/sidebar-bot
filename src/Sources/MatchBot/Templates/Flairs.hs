@@ -72,7 +72,14 @@ teamFlags = Map.fromList
   , "Fnatic" =: "fnatic"
   , "compLexity Gaming" =: "col"
   , "Invictus Gaming" =: "ig"
-  , "Natus Vincere" =: "navi" ]
+  , "Natus Vincere" =: "navi"
+  , "Newbee" =: "newbee"
+  , "Virtus.pro" =: "virtus"
+  , "Evil Geniuses" =: "eg"
+  , "MVP HOT6" =: "mvp"
+  , "Vici Gaming" =: "vg"
+  , "Team Empire" =: "empire"
+  , "EHOME" =: "ehome" ]
   where (=:) = (,)
 
 playerOfficialNames :: Map AccountID Lazy.Text
@@ -163,6 +170,7 @@ playerOfficialNames = Map.fromList
   , 111189717 =: "Faint"
   , 89625472 =: "XBOCTlovesLakshmi"
   , 70388657 =: "Dendi"
+  , 86723143 =: "Funn1k"
   , 117015167 =: "PABLO"
   , 90423751 =: "Bignum"
   , 120111123 =: "Ingman"
