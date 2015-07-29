@@ -19,6 +19,8 @@ import Data.Text.Format hiding (print)
 import Data.Yaml
 import Reddit hiding (bans, before, after)
 import Reddit.Types.Message
+import System.Environment
+import System.Exit
 import WebAPI.Dota
 import WebAPI.Dota.Types.Hero
 import WebAPI.Dota.Types.Match
@@ -33,6 +35,22 @@ lang = Language $ Just "en"
 
 subreddit :: SubredditName
 subreddit = R "dota2"
+
+main :: IO ()
+main = do
+  getArgs >>= \case
+    (fmap Text.pack -> [user, pass, apikey]) ->
+      go user pass (WebAPIKey apikey)
+    _ -> do
+      putStrLn "invalid arguments"
+      exitFailure
+
+go :: Text -> Text -> WebAPIKey -> IO ()
+go user pass key = do
+  let runR = runRedditIndefinitely user pass
+  withAsync (runR $ wikiCurrentMatches key) $ \a -> do
+    void $ runR (messageHandler key runR)
+    cancel a
 
 wikiCurrentMatches :: MonadIO m => WebAPIKey -> RedditT m ()
 wikiCurrentMatches key = forever $ do
