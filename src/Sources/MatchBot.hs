@@ -89,12 +89,10 @@ keepUpdated key mid pid = fix $ \loop -> do
         Post.TitleOnly -> do
           editPost pid $ Lazy.toStrict $
             wrapBlock "match-details" $ makePostgame res
-          liftIO $ Lazy.putStrLn $ format "{} just finished" $ Only $ Shown pid
         Post.Link _ -> return ()
         Post.SelfPost md _ -> do
           editPost pid $ replaceBlock "match-details" md $
             Lazy.toStrict $ makePostgame res
-          liftIO $ Lazy.putStrLn $ format "{} just finished" $ Only $ Shown pid
     Just g -> do
       post <- getPostInfo pid
       case Post.content post of
