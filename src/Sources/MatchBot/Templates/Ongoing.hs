@@ -16,12 +16,8 @@ makeOutput g = execWriter $ do
   tellBlock $ maybe "Pre-game" (format "Last updated: {}" . Only. lastUpdateTime) $ g ^? scoreboard.traverse.duration
   tellBlock $ teamsTable g
   tellBlock $ bansTable g
-  case g ^? scoreboard.traverse.duration of
-    Just n ->
-      if n > 0
-        then tellBlock $ scoreTable g
-        else tellBlock $ picksTable g
-    Nothing -> tellBlock $ picksTable g
+  tellBlock $ picksTable g
+  tellBlock $ scoreTable g
   tellBlock $ otherLinks g
 
 currentScore :: LiveLeagueMatch -> Lazy.Text
