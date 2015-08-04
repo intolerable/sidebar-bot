@@ -27,7 +27,6 @@ import WebAPI.Dota.Types.Match
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.Lazy as Lazy
-import qualified Data.Text.Lazy.IO as Lazy
 import qualified Reddit.Types.Post as Post
 
 lang :: Language
@@ -122,7 +121,7 @@ runRedditIndefinitely :: MonadIO m => Text -> Text -> RedditT m a -> m (Either (
 runRedditIndefinitely u p reddit =
   runResumeRedditWith defaultRedditOptions { loginMethod = Credentials u p } reddit >>= \case
     Right x -> return $ Right x
-    Left (HTTPError e, Just resume) -> do
+    Left (HTTPError _, Just resume) -> do
       liftIO $ putStrLn "http error, continuing"
       runRedditIndefinitely u p resume
     Left (APIError (RateLimitError n _), Just resume) -> do

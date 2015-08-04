@@ -39,14 +39,14 @@ bansTablePost g = Lazy.intercalate "\n"
     ( maybe "[](/logo-blank)" teamFlag $ g ^? radiantTeam.name.traverse
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant False 0
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant False 1
-    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 1
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 0
+    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 1
     , maybe "[](/logo-blank)" teamFlag $ g ^? direTeam.name.traverse )
   , format "|      | {} {} |     | {} {} |      |"
     ( maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant False 2
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant False 3
-    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 3
-    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 2 )
+    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 2
+    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 3 )
   , format "|      |    {} |     | {}    |      |"
     ( maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant False 4
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire False 4 ) ]
@@ -58,7 +58,7 @@ picksTablePost g = Lazy.intercalate "\n"
   , format "| {}   | {} {} | vs. | {} {} | {}   |"
     ( maybe "[](/logo-blank)" teamFlag $ g ^? radiantTeam.name.traverse
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant True 0
-    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant True 0
+    , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Radiant True 1
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire True 0
     , maybe "[](/logo-blank)" heroFlair $ g ^? draftNth Dire True 1
     , maybe "[](/logo-blank)" teamFlag $ g ^? direTeam.name.traverse )
