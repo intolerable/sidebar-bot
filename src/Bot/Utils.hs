@@ -15,7 +15,7 @@ thousandsFormat =
 
 humanReadableTime :: Integer -> Text
 humanReadableTime diff = mconcat $
-  if h > 1
+  if h > 0
     then
       [ tshow h
       , "h "
