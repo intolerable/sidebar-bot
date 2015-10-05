@@ -34,7 +34,7 @@ library
   build-depends:
     base == 4.*,
     aeson,
-    api-builder,
+    api-builder >= 0.11 && < 0.12,
     async,
     bifunctors,
     bytestring,
@@ -45,7 +45,7 @@ library
     lens,
     mtl,
     optparse-applicative,
-    reddit,
+    reddit >= 0.2,
     stm,
     text,
     text-format,
