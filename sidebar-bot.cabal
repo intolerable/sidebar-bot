@@ -13,11 +13,11 @@ library
     Sources.Azubu
     Sources.Gosu
     Sources.Hitbox
-    Sources.MLG
     Sources.MatchBot
     Sources.MatchBot.Templates.Finished
     Sources.MatchBot.Templates.Flairs
     Sources.MatchBot.Templates.Ongoing
+    Sources.MLG
     Sources.PlayerCount
     Sources.PrizePool
     Sources.Twitch
