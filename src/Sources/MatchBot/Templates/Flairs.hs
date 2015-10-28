@@ -79,7 +79,8 @@ teamFlags = Map.fromList
   , "MVP HOT6" =: "mvp"
   , "Vici Gaming" =: "vg"
   , "Team Empire" =: "empire"
-  , "EHOME" =: "ehome" ]
+  , "EHOME" =: "ehome"
+  , "(monkey) Business" =: "monkey" ]
   where (=:) = (,)
 
 playerOfficialNames :: Map AccountID Lazy.Text
@@ -197,6 +198,8 @@ playerOfficialNames = Map.fromList
   , 112377459 =: "Febby"
   , 105599955 =: "Heen"
   , 88933594 =: "FoREv"
+  , 177648913 =: "Ritsu"
+  , 31818853 =: "Brax"
   ]
   where x =: y = (AccountID x, y)
 

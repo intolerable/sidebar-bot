@@ -166,10 +166,18 @@ moderators = Set.fromList $ Just <$> Username <$>
   , "crimson589"
   , "Intolerable"
   , "lestye"
-  , "leafeator" ]
+  , "leafeator"
+  , "HAPPYSADPERSON"
+  , "RawlsTofJ"
+  , "MadnessBunny"
+  , "coronaria"
+  , "772-LR"
+  , "Gamerhcp"
+  , "aniboy10"
+  , "Arch_Reaper" ]
 
 data ThreadCommand = NewThread Text
-                  | AttachTo PostID
+                   | AttachTo PostID
   deriving (Show, Read, Eq)
 
 data MatchCommand = MatchCommand MatchID ThreadCommand
