@@ -5,7 +5,6 @@ import Bot.Utils
 import Control.Concurrent.VarThread
 import Sources.Gosu
 import Sources.PrizePool
-import Sources.PlayerCount
 import qualified Sources.Azubu as Azubu
 import qualified Sources.Gosu as Gosu
 import qualified Sources.Hitbox as Hitbox
@@ -61,7 +60,6 @@ run (CmdOptions fp) =
 redesign :: Options -> IO ()
 redesign o@(Options (Username u) p r gg wk gk) = do
   pp <- prizeTrackerThread wk
-  pc <- playersTrackerThread
   wp <- newEmptyVarThread (wikiPageTracker o)
   ts <- Twitch.twitchTrackerThread
   as <- Azubu.azubuTrackerThread
@@ -70,21 +68,18 @@ redesign o@(Options (Username u) p r gg wk gk) = do
   urlmap <- newTVarIO Map.empty
   mp <- Gosu.gosuTrackerThread gg
   forever $ do
-    (prize, alive, wikiText, streams, ms) <- atomically $
-      (,,,,) <$> readVarThread pp
-             <*> readVarThread pc
-             <*> readVarThread wp
-             <*> combine ts mlgs as hs
-             <*> readVarThread mp
+    (prize, wikiText, streams, ms) <- atomically $
+      (,,,) <$> readVarThread pp
+            <*> readVarThread wp
+            <*> combine ts mlgs as hs
+            <*> readVarThread mp
     void $ runReddit u p $ do
       currentTime <- liftIO getCurrentTime
       shorteneds <- mapM (liftIO . retrieveShortened gk urlmap . Gosu.matchURL) ms
       app <- return $ mconcat $ map Endo
         [ Text.replace "%%PRIZE%%" $ "$" <> thousandsFormat prize
         , Text.replace "%%STREAMS%%" $ formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams
-        , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds
-        , Text.replace "%%SERVERS%%" $ if alive then "OK" else "Offline"
-        , Text.replace "%%ANNOUNCE%%" $ if alive then "" else "1. [Dota 2 Servers are Offline](http://steamstat.us#notice)"]
+        , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds]
       editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
