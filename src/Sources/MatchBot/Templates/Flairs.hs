@@ -80,7 +80,8 @@ teamFlags = Map.fromList
   , "Vici Gaming" =: "vg"
   , "Team Empire" =: "empire"
   , "EHOME" =: "ehome"
-  , "(monkey) Business" =: "monkey" ]
+  , "(monkey) Business" =: "monkey"
+  , "Alliance" =: "alliance" ]
   where (=:) = (,)
 
 playerOfficialNames :: Map AccountID Lazy.Text
