@@ -46,10 +46,14 @@ main = do
 
 go :: Text -> Text -> WebAPIKey -> IO ()
 go user pass key = do
-  let runR = runRedditIndefinitely user pass
   withAsync (runR $ wikiCurrentMatches key) $ \a -> do
     void $ runR (messageHandler key runR)
     cancel a
+  where
+    runR x = do
+      runRedditIndefinitely user pass x >>= \case
+        Left err -> print err >> runR x
+        Right _ -> runR x
 
 wikiCurrentMatches :: MonadIO m => WebAPIKey -> RedditT m ()
 wikiCurrentMatches key = forever $ do
@@ -121,8 +125,10 @@ runRedditIndefinitely :: MonadIO m => Text -> Text -> RedditT m a -> m (Either (
 runRedditIndefinitely u p reddit =
   runResumeRedditWith defaultRedditOptions { loginMethod = Credentials u p } reddit >>= \case
     Right x -> return $ Right x
-    Left (HTTPError _, Just resume) -> do
-      liftIO $ putStrLn "http error, continuing"
+    Left (HTTPError err, Just resume) -> do
+      liftIO $ do
+        print err
+        putStrLn "http error, continuing"
       runRedditIndefinitely u p resume
     Left (APIError (RateLimitError n _), Just resume) -> do
       liftIO $ putStrLn "rate limited, waiting"
