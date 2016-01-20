@@ -79,7 +79,8 @@ redesign o@(Options (Username u) p r gg wk gk) = do
       app <- return $ mconcat $ map Endo
         [ Text.replace "%%PRIZE%%" $ "$" <> thousandsFormat prize
         , Text.replace "%%STREAMS%%" $ formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams
-        , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds]
+        , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds
+        , Text.replace "%%ANNOUNCEMENTS%%" "" ]
       editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
