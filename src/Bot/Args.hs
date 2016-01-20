@@ -13,7 +13,7 @@ import qualified Googl
 type Password = Text
 
 data Options =
-  Options Username Password SubredditName GosuGamersKey WebAPIKey Googl.APIKey
+  Options Username Password SubredditName
   deriving (Show)
 
 instance FromJSON Options where
@@ -21,9 +21,6 @@ instance FromJSON Options where
     Options <$> o .: "username"
             <*> o .: "password"
             <*> o .: "subreddit"
-            <*> (GGKey <$> o .: "gg_key")
-            <*> (WebAPIKey <$> o .: "valve_key")
-            <*> (Googl.APIKey <$> o .: "googl_key")
   parseJSON _ = mempty
 
 data CmdOptions = CmdOptions FilePath
