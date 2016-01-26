@@ -47,7 +47,7 @@ twitchAPI = basicBuilder "Twitch" "https://api.twitch.tv/kraken"
 
 streamsRoute :: Route
 streamsRoute = Route [ "streams" ]
-                     [ "game" =. ("Dota 2" :: Text)
+                     [ "game" =. ("Summoners War: Sky Arena" :: Text)
                      , "limit" =. (5 :: Integer) ]
                      "GET"
 
