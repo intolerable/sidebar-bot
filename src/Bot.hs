@@ -68,19 +68,19 @@ formatStream n (TStream stream) =
   mconcat [ ">>>#[", Text.strip $ Twitch.title stream, "]"
           , "(", Twitch.url stream, "#profile-", tshow n, ")\n"
           , ">##\n"
-          , ">###", tshow $ Twitch.viewers stream, " @ ", Twitch.streamer stream ]
+          , ">###", tshow $ Twitch.viewers stream, " viewers @ ", Twitch.streamer stream ]
 formatStream n (MStream (s, c)) =
   mconcat [ ">>>#[", Text.strip $ MLG.channelSubtitle c, "]"
           , "(", MLG.channelURL c, "#profile-", tshow n, ")\n"
           , ">##\n"
-          , ">###", tshow $ MLG.streamViewers s, " @ ", MLG.channelName c ]
+          , ">###", tshow $ MLG.streamViewers s, " viewers @ ", MLG.channelName c ]
 formatStream n (AStream stream) =
   mconcat [ ">>>#[", Text.strip $ Azubu.title stream, "]"
           , "(", Azubu.url stream, "#profile-", tshow n, ")\n"
           , ">##\n"
-          , ">###", tshow $ Azubu.viewers stream, " @ ", Azubu.streamer stream ]
+          , ">###", tshow $ Azubu.viewers stream, " viewers @ ", Azubu.streamer stream ]
 formatStream n (HStream stream) =
   mconcat [ ">>>#[", Text.strip $ Hitbox.title stream, "]"
           , "(", Hitbox.url stream, "#profile-", tshow n, ")\n"
           , ">##\n"
-          , ">###", tshow $ Hitbox.viewers stream, " @ ", Hitbox.streamer stream ]
+          , ">###", tshow $ Hitbox.viewers stream, " viewers @ ", Hitbox.streamer stream ]
