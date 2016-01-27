@@ -61,7 +61,7 @@ wikiPageTracker (Options (Username u) p r) send = forever $ do
   threadDelay $ 5 * 60 * 1000 * 1000
 
 formatStreams :: [Stream] -> Text
-formatStreams = Text.intercalate "\n\n>>[](#separator)\n\n" . zipWith formatStream [0..]
+formatStreams = Text.intercalate "\n\n" . zipWith formatStream [0..]
 
 formatStream :: Int -> Stream -> Text
 formatStream n (TStream stream) =
