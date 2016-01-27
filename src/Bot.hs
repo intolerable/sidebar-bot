@@ -65,22 +65,26 @@ formatStreams = Text.intercalate "\n\n" . zipWith formatStream [0..]
 
 formatStream :: Int -> Stream -> Text
 formatStream n (TStream stream) =
-  mconcat [ ">>>#[", Text.strip $ Twitch.title stream, "]"
+  mconcat [ ">>>#[", fixUntitled $ Text.strip $ Twitch.title stream, "]"
           , "(", Twitch.url stream, "#profile-", tshow n, ")\n"
           , ">##\n"
           , ">###", tshow $ Twitch.viewers stream, " viewers @ ", Twitch.streamer stream ]
 formatStream n (MStream (s, c)) =
-  mconcat [ ">>>#[", Text.strip $ MLG.channelSubtitle c, "]"
+  mconcat [ ">>>#[", fixUntitled $ Text.strip $ MLG.channelSubtitle c, "]"
           , "(", MLG.channelURL c, "#profile-", tshow n, ")\n"
           , ">##\n"
           , ">###", tshow $ MLG.streamViewers s, " viewers @ ", MLG.channelName c ]
 formatStream n (AStream stream) =
-  mconcat [ ">>>#[", Text.strip $ Azubu.title stream, "]"
+  mconcat [ ">>>#[", fixUntitled $ Text.strip $ Azubu.title stream, "]"
           , "(", Azubu.url stream, "#profile-", tshow n, ")\n"
           , ">##\n"
           , ">###", tshow $ Azubu.viewers stream, " viewers @ ", Azubu.streamer stream ]
 formatStream n (HStream stream) =
-  mconcat [ ">>>#[", Text.strip $ Hitbox.title stream, "]"
+  mconcat [ ">>>#[", fixUntitled $ Text.strip $ Hitbox.title stream, "]"
           , "(", Hitbox.url stream, "#profile-", tshow n, ")\n"
           , ">##\n"
           , ">###", tshow $ Hitbox.viewers stream, " viewers @ ", Hitbox.streamer stream ]
+
+fixUntitled :: Text -> Text
+fixUntitled "" = "Untitled Broadcast"
+fixUntitled x = x
