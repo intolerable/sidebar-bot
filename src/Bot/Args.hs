@@ -13,7 +13,7 @@ import qualified Googl
 type Password = Text
 
 data Options =
-  Options Username Password SubredditName
+  Options Username Password SubredditName Bans
   deriving (Show)
 
 instance FromJSON Options where
@@ -21,7 +21,11 @@ instance FromJSON Options where
     Options <$> o .: "username"
             <*> o .: "password"
             <*> o .: "subreddit"
+            <*> (Bans <$> (o .:? "banned" .!= []))
   parseJSON _ = mempty
+
+newtype Bans = Bans [Text]
+  deriving (Show, Read, Eq)
 
 data CmdOptions = CmdOptions FilePath
 

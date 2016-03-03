@@ -4,6 +4,7 @@ module Sources.Twitch
   , StreamList(..)
   , twitchTrackerThread ) where
 
+import Bot.Args
 import Control.Concurrent.VarThread
 
 import Control.Applicative
@@ -54,10 +55,13 @@ streamsRoute = Route [ "streams" ]
 getStreams :: IO (Either (APIError ()) StreamList)
 getStreams = execAPI twitchAPI () $ runRoute streamsRoute
 
-twitchTrackerThread :: IO (VarThread [Stream])
-twitchTrackerThread = newEmptyVarThread $ \update ->
+twitchTrackerThread :: Bans -> IO (VarThread [Stream])
+twitchTrackerThread bs = newEmptyVarThread $ \update ->
   forever $ do
     getStreams >>= \case
       Left err -> putStrLn $ "Twitch error:" <> show err
-      Right (StreamList ss) -> atomically $ update ss
+      Right (StreamList ss) -> atomically $ update $ take 5 $ filter (not . banned bs) ss
     threadDelay $ 60 * 1000 * 1000
+
+banned :: Bans -> Stream -> Bool
+banned (Bans bs) s = streamer s `elem` bs

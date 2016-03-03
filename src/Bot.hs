@@ -41,9 +41,9 @@ run (CmdOptions fp) =
     Right x -> redesign x
 
 redesign :: Options -> IO ()
-redesign o@(Options (Username u) p r) = do
+redesign o@(Options (Username u) p r bs) = do
   wp <- newEmptyVarThread (wikiPageTracker o)
-  ts <- Twitch.twitchTrackerThread
+  ts <- Twitch.twitchTrackerThread bs
   forever $ do
     (wikiText, streams) <- atomically $
       (,) <$> readVarThread wp
@@ -54,7 +54,7 @@ redesign o@(Options (Username u) p r) = do
     threadDelay $ 60 * 1000 * 1000
 
 wikiPageTracker :: Options -> (Text -> STM ()) -> IO ()
-wikiPageTracker (Options (Username u) p r) send = forever $ do
+wikiPageTracker (Options (Username u) p r _) send = forever $ do
   runReddit u p (getWikiPage r "sidebar") >>= \case
     Left _ -> return ()
     Right wp -> atomically $ send $ contentMarkdown wp
