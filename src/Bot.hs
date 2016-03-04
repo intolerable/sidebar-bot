@@ -49,7 +49,7 @@ redesign o@(Options (Username u) p r bs) = do
       (,) <$> readVarThread wp
           <*> readVarThread ts
     void $ runReddit u p $ do
-      let modifyText = Text.replace "%%STREAMS%%" $ formatStreams $ map TStream $ take 5 $ sortBy (comparing (Down . Twitch.viewers)) streams
+      let modifyText = Text.replace "%%STREAMS%%" $ formatStreams $ map TStream $ sortBy (comparing (Down . Twitch.viewers)) streams
       editWikiPage r "config/sidebar" (modifyText wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
