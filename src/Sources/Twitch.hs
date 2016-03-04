@@ -48,8 +48,7 @@ twitchAPI = basicBuilder "Twitch" "https://api.twitch.tv/kraken"
 
 streamsRoute :: Route
 streamsRoute = Route [ "streams" ]
-                     [ "game" =. ("Summoners War: Sky Arena" :: Text)
-                     , "limit" =. (5 :: Integer) ]
+                     [ "game" =. ("Summoners War: Sky Arena" :: Text) ]
                      "GET"
 
 getStreams :: IO (Either (APIError ()) StreamList)
@@ -60,7 +59,7 @@ twitchTrackerThread bs = newEmptyVarThread $ \update ->
   forever $ do
     getStreams >>= \case
       Left err -> putStrLn $ "Twitch error:" <> show err
-      Right (StreamList ss) -> atomically $ update $ take 5 $ filter (not . banned bs) ss
+      Right (StreamList ss) -> atomically $ update $ take 10 $ filter (not . banned bs) ss
     threadDelay $ 60 * 1000 * 1000
 
 banned :: Bans -> Stream -> Bool
