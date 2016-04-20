@@ -129,6 +129,7 @@ runRedditIndefinitely u p reddit =
       liftIO $ do
         print err
         putStrLn "http error, continuing"
+        threadDelay $ 300 * 1000 * 1000
       runRedditIndefinitely u p resume
     Left (APIError (RateLimitError n _), Just resume) -> do
       liftIO $ putStrLn "rate limited, waiting"
