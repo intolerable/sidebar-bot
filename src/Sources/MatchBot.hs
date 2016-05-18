@@ -59,7 +59,7 @@ wikiCurrentMatches :: MonadIO m => WebAPIKey -> RedditT m ()
 wikiCurrentMatches key = forever $ do
   LiveMatchListing ms <-
     definitely $ liftIO $ runWebAPI key lang getLiveLeagueGames
-  editWikiPage (R "Dota2") "live_matches" (Text.intercalate "\n\n" $ fmtGame <$> ms) "update current live games"
+  editWikiPage subreddit "live_matches" (Text.intercalate "\n\n" $ fmtGame <$> ms) "update current live games"
   liftIO $ threadDelay $ 15 * 1000 * 1000
   where
     fmtGame m =
