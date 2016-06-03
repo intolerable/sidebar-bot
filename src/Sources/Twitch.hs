@@ -19,7 +19,8 @@ import Prelude
 data Stream = Stream { streamer :: Text
                      , title :: Text
                      , viewers :: Integer
-                     , url :: Text }
+                     , url :: Text
+                     , broadcasterLanguage :: Text }
   deriving (Show, Read, Eq)
 
 instance FromJSON Stream where
@@ -29,6 +30,7 @@ instance FromJSON Stream where
            <*> (channel .: "status" <|> pure "(No title)")
            <*> o .: "viewers"
            <*> channel .: "url"
+           <*> channel .: "broadcaster_language"
   parseJSON _ = mempty
 
 data StreamList = StreamList [Stream]

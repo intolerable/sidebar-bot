@@ -17,11 +17,13 @@ import Control.Concurrent.STM
 import Control.Monad
 import Control.Monad.IO.Class
 import Control.Monad.Trans.Writer
-import Data.Monoid
 import Data.List
 import Data.Map (Map)
+import Data.Monoid
 import Data.Ord
+import Data.Set (Set)
 import Data.Text (Text)
+import Data.Text.Encoding
 import Data.Time.Clock
 import Data.Yaml
 import Prelude
@@ -29,6 +31,7 @@ import Reddit hiding (Options)
 import Reddit.Types.Wiki
 import System.Exit
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Googl
 
@@ -46,6 +49,8 @@ streamViewers (HStream s) = Hitbox.viewers s
 
 type URLMap = Map Text Text
 
+type Whitelist = Set Text
+
 main :: IO ()
 main = getOpts >>= run
 
@@ -61,6 +66,7 @@ redesign :: Options -> IO ()
 redesign o@(Options (Username u) p r gg wk gk) = do
   pp <- prizeTrackerThread wk
   wp <- newEmptyVarThread (wikiPageTracker o)
+  whitelist <- newEmptyVarThread (whitelistTracker o)
   ts <- Twitch.twitchTrackerThread
   as <- Azubu.azubuTrackerThread
   hs <- Hitbox.hitboxTrackerThread
@@ -71,7 +77,7 @@ redesign o@(Options (Username u) p r gg wk gk) = do
     (prize, wikiText, streams, ms) <- atomically $
       (,,,) <$> readVarThread pp
             <*> readVarThread wp
-            <*> combine ts mlgs as hs
+            <*> combine whitelist ts mlgs as hs
             <*> readVarThread mp
     void $ runReddit u p $ do
       currentTime <- liftIO getCurrentTime
@@ -84,10 +90,14 @@ redesign o@(Options (Username u) p r gg wk gk) = do
       editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
 
-combine :: VarThread [Twitch.Stream] -> VarThread [(MLG.Stream, MLG.Channel)] -> VarThread [Azubu.Stream] -> VarThread [Hitbox.Stream] -> STM [Stream]
-combine va vb vc vd =
+allowed :: Whitelist -> [Twitch.Stream] -> [Twitch.Stream]
+allowed wl = filter (\s -> Twitch.broadcasterLanguage s == "en" || Set.member (Text.toLower $ Twitch.streamer s) wl)
+
+combine :: VarThread Whitelist -> VarThread [Twitch.Stream] -> VarThread [(MLG.Stream, MLG.Channel)] -> VarThread [Azubu.Stream] -> VarThread [Hitbox.Stream] -> STM [Stream]
+combine whitelist va vb vc vd = do
+  wl <- readVarThread whitelist
   mconcat <$> sequence
-    [ TStream <$$> readVarThread va
+    [ fmap (fmap TStream . allowed wl) $ readVarThread va
     , MStream <$$> readVarThread vb
     , AStream <$$> readVarThread vc
     , HStream <$$> readVarThread vd ]
@@ -111,6 +121,17 @@ wikiPageTracker (Options (Username u) p r _ _ _) send = forever $ do
     Left _ -> return ()
     Right wp -> atomically $ send $ contentMarkdown wp
   threadDelay $ 5 * 60 * 1000 * 1000
+
+whitelistTracker :: Options -> (Whitelist -> STM ()) -> IO ()
+whitelistTracker (Options (Username u) p r _ _ _) send = do
+  atomically $ send mempty
+  forever $ do
+    runReddit u p (getWikiPage r "streamer_whitelist") >>= \case
+      Left _ -> return ()
+      Right wp -> case decodeEither $ encodeUtf8 $ contentMarkdown wp of
+        Left _ -> return ()
+        Right x -> atomically $ send $ Set.fromList $ map Text.toLower x
+    threadDelay $ 15 * 60 * 1000 * 1000
 
 formatStreams :: [Stream] -> Text
 formatStreams = Text.intercalate "\n\n>>[](#separator)\n\n" . zipWith formatStream [0..]
