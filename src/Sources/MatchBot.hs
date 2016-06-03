@@ -53,7 +53,7 @@ go user pass key = do
     runR x = do
       runRedditIndefinitely user pass x >>= \case
         Left err -> print err >> runR x
-        Right _ -> runR x
+        Right res -> return (Right res)
 
 wikiCurrentMatches :: MonadIO m => WebAPIKey -> RedditT m ()
 wikiCurrentMatches key = forever $ do
