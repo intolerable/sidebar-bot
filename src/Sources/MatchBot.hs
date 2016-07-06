@@ -181,7 +181,11 @@ moderators = Set.fromList $ Just <$> Username <$>
   , "772-LR"
   , "Gamerhcp"
   , "aniboy10"
-  , "Arch_Reaper" ]
+  , "Arch_Reaper"
+  , "stats95"
+  , "FeeedXD"
+  , "jagnev"
+  , "gl0ryus" ]
 
 data ThreadCommand = NewThread Text
                    | AttachTo PostID
