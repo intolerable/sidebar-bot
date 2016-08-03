@@ -86,7 +86,7 @@ teamFlags = Map.fromList
   , "TNC Pro Team" =: "tnc"
   , "OG Dota2" =: "og"
   , "the wings gaming" =: "wings"
-  , "Escape Gaming" =: "escape ]
+  , "Escape Gaming" =: "escape" ]
   where (=:) = (,)
 
 playerOfficialNames :: Map AccountID Lazy.Text
