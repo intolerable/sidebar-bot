@@ -82,7 +82,11 @@ teamFlags = Map.fromList
   , "EHOME" =: "ehome"
   , "(monkey) Business" =: "monkey"
   , "Alliance" =: "alliance"
-  , "Digital Chaos" =: "dc" ]
+  , "Digital Chaos" =: "dc"
+  , "TNC Pro Team" =: "tnc"
+  , "OG Dota2" =: "og"
+  , "the wings gaming" =: "wings"
+  , "Escape Gaming" =: "escape ]
   where (=:) = (,)
 
 playerOfficialNames :: Map AccountID Lazy.Text
