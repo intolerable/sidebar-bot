@@ -77,7 +77,7 @@ wikiCurrentMatches key = forever $ do
 postThread :: MonadIO m => WebAPIKey ->  Text -> MatchID -> RedditT m ()
 postThread key title mid = do
   pid <- submitSelfPost subreddit title ""
-  setPostFlair subreddit pid "Match | eSports" "match esports"
+  void $ nest $ setPostFlair subreddit pid "Match | eSports" "match esports"
   setInboxReplies False pid
   keepUpdated key mid pid
 
