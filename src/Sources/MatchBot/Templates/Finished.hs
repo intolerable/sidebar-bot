@@ -28,7 +28,7 @@ makePostgame g = execWriter $ do
 
 otherLinksPost :: Match -> Lazy.Text
 otherLinksPost g = Lazy.intercalate "\n\n"
-  [ format "More information on [Dotabuff](http://dotabuff.com/matches/{}), [YASP](http://yasp.co/matches/{}), and [datDota](http://datdota.com/match.php?q={})" (m, m, m) ]
+  [ format "More information on [Dotabuff](http://dotabuff.com/matches/{}) and [YASP](http://yasp.co/matches/{})" (m, m) ]
   where MatchID m = g ^. identifier
 
 bansTablePost :: Match -> Lazy.Text
