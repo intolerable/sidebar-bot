@@ -48,6 +48,7 @@ tellBlock :: Lazy.Text -> Writer Lazy.Text ()
 tellBlock x = tell x >> tell "\n\n"
 
 heroFlair :: HeroID -> Lazy.Text
+heroFlair (HeroID 108) = format "[](/hero-abyssalunderlord \"Underlord\")" ()
 heroFlair h@(HeroID n) =
   case Map.lookup h heroFlairs of
     Just x -> format "[](/hero-{} \"{}\")" (Lazy.toLower $ Lazy.replace "'" "" $ Lazy.replace "-" "" $ Lazy.replace " " "" x, x)
@@ -327,5 +328,6 @@ heroFlairs = Map.fromList
   , HeroID 110 =: "Phoenix"
   , HeroID 111 =: "Oracle"
   , HeroID 105 =: "Techies"
-  , HeroID 112 =: "Winter Wyvern" ]
+  , HeroID 112 =: "Winter Wyvern"
+  , HeroID 108 =: "Underlord" ]
   where (=:) = (,)
