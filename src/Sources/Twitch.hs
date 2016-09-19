@@ -15,6 +15,7 @@ import Data.Aeson
 import Data.Monoid
 import Data.Text (Text)
 import Network.API.Builder
+import Network.HTTP.Client
 import Prelude
 
 data Stream = Stream { streamer :: Text
@@ -44,7 +45,11 @@ instance Receivable StreamList where
   receive = useFromJSON
 
 twitchAPI :: Builder
-twitchAPI = basicBuilder "Twitch" "https://api.twitch.tv/kraken"
+twitchAPI = Builder "Twitch"
+                    "https://api.twitch.tv/kraken"
+                    id
+                    (\r -> r { requestHeaders = ("Client-ID", "59bfzzahzvq2haa6mo9kt3siak01w0s"):requestHeaders r })
+
 
 streamsRoute :: Route
 streamsRoute = Route [ "streams" ]
