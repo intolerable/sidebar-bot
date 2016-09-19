@@ -42,6 +42,7 @@ library
     dota2,
     either,
     googl,
+    http-client,
     lens,
     mtl,
     optparse-applicative,
