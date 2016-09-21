@@ -54,8 +54,7 @@ twitchAPI = Builder "Twitch"
 
 streamsRoute :: Route
 streamsRoute = Route [ "streams" ]
-                     [ "game" =. ("Dota 2" :: Text)
-                     , "limit" =. (5 :: Integer) ]
+                     [ "game" =. ("Dota 2" :: Text) ]
                      "GET"
 
 getStreams :: IO (Either (APIError ()) StreamList)
