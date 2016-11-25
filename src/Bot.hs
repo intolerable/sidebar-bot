@@ -24,7 +24,9 @@ import Data.Ord
 import Data.Set (Set)
 import Data.Text (Text)
 import Data.Text.Encoding
+import Data.Time.Calendar
 import Data.Time.Clock
+import Data.Time.Format
 import Data.Yaml
 import Prelude
 import Reddit hiding (Options)
@@ -86,9 +88,13 @@ redesign o@(Options (Username u) p r gg wk gk) = do
         [ Text.replace "%%PRIZE%%" $ "$" <> thousandsFormat prize
         , Text.replace "%%STREAMS%%" $ formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams
         , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds
-        , Text.replace "%%ANNOUNCEMENTS%%" "" ]
+        , Text.replace "%%ANNOUNCEMENTS%%" ""
+        , Text.replace "%%COUNTDOWN_DAYS%%" $ tshow $ diffDays (utctDay monkeyKingReleaseDate) (utctDay currentTime) ]
       editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
+
+monkeyKingReleaseDate :: UTCTime
+monkeyKingReleaseDate = parseTimeOrError False defaultTimeLocale "%Y-%m-%d %H:%M:%S %Z" "2016-12-12 15:22:00 PST"
 
 allowed :: Whitelist -> [Twitch.Stream] -> [Twitch.Stream]
 allowed wl = filter (\s -> Twitch.broadcasterLanguage s == "en" || Set.member (Text.toLower $ Twitch.streamer s) wl)
