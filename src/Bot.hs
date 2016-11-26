@@ -84,14 +84,24 @@ redesign o@(Options (Username u) p r gg wk gk) = do
     void $ runReddit u p $ do
       currentTime <- liftIO getCurrentTime
       shorteneds <- mapM (liftIO . retrieveShortened gk urlmap . Gosu.matchURL) ms
+      let (days, hours, minutes) = countdownDiff currentTime monkeyKingReleaseDate
       app <- return $ mconcat $ map Endo
         [ Text.replace "%%PRIZE%%" $ "$" <> thousandsFormat prize
         , Text.replace "%%STREAMS%%" $ formatStreams $ take 5 $ sortBy (comparing (Down . streamViewers)) streams
         , Text.replace "%%MATCHES%%" $ formatMatches currentTime $ ms `zip` shorteneds
         , Text.replace "%%ANNOUNCEMENTS%%" ""
-        , Text.replace "%%COUNTDOWN_DAYS%%" $ tshow $ diffDays (utctDay monkeyKingReleaseDate) (utctDay currentTime) ]
+        , Text.replace "%%COUNTDOWN_DAYS%%" $ tshow days
+        , Text.replace "%%COUNTDOWN_HOURS%%" $ tshow hours
+        , Text.replace "%%COUNTDOWN_MINUTES%%" $ tshow minutes ]
       editWikiPage r "config/sidebar" (appEndo app wikiText) "sidebar update"
     threadDelay $ 60 * 1000 * 1000
+
+countdownDiff :: UTCTime -> UTCTime -> (Integer, Integer, Integer)
+countdownDiff now target = (diffDays (utctDay target) (utctDay now), hours, minutes)
+  where
+    seconds = ceiling $ utctDayTime target - utctDayTime now
+    minutes = (seconds `div` 60) `mod` 60
+    hours = (minutes `div` 60) `mod` 24
 
 monkeyKingReleaseDate :: UTCTime
 monkeyKingReleaseDate = parseTimeOrError False defaultTimeLocale "%Y-%m-%d %H:%M:%S %Z" "2016-12-12 15:22:00 PST"
