@@ -75,13 +75,15 @@ redesign o@(Options (Username u) p r gg wk gk) = do
   mlgs <- MLG.mlgTrackerThread
   urlmap <- newTVarIO Map.empty
   mp <- Gosu.gosuTrackerThread gg
+  let redditOpts = defaultRedditOptions { loginMethod = Credentials u p
+                                        , customUserAgent = Just "/r/Dota2 sidebar bot" }
   forever $ do
     (prize, wikiText, streams, ms) <- atomically $
       (,,,) <$> readVarThread pp
             <*> readVarThread wp
             <*> combine whitelist ts mlgs as hs
             <*> readVarThread mp
-    void $ runReddit u p $ do
+    void $ runRedditWith redditOpts $ do
       currentTime <- liftIO getCurrentTime
       shorteneds <- mapM (liftIO . retrieveShortened gk urlmap . Gosu.matchURL) ms
       let (days, hours, minutes) = countdownDiff currentTime monkeyKingReleaseDate

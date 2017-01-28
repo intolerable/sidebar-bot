@@ -122,8 +122,10 @@ definitely x = fix $ \loop ->
     Right res -> return res
 
 runRedditIndefinitely :: MonadIO m => Text -> Text -> RedditT m a -> m (Either (APIError RedditError) a)
-runRedditIndefinitely u p reddit =
-  runResumeRedditWith defaultRedditOptions { loginMethod = Credentials u p } reddit >>= \case
+runRedditIndefinitely u p reddit = do
+  let redditOpts = defaultRedditOptions { loginMethod = Credentials u p
+                                        , customUserAgent = Just "/r/Dota2 live match threads bot" }
+  runResumeRedditWith redditOpts reddit >>= \case
     Right x -> return $ Right x
     Left (HTTPError err, Just resume) -> do
       liftIO $ do
